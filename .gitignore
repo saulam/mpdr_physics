@@ -1,0 +1,7 @@
+__pycache__/
+.ipynb_checkpoints/
+notebooks/
+lightning_logs
+*log*
+checkpoint*
+*json

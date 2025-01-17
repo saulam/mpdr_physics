@@ -31,7 +31,7 @@ def ini_argparse():
     parser.add_argument("--tau", type=float, default=0.1, help="Tau parameter")
     parser.add_argument("--perceptual_weight", type=float, default=None, help="Weight for perceptual loss")
     parser.add_argument("--condensation_weight", type=float, default=None, help="Weight for condensation loss")
-    parser.add_argument("--learn_out_scale", type=bool, default=None, help="Learnable output scaling")
+    parser.add_argument("--learn_out_scale", action="store_true", default=None, help="Learnable output scaling")
 
     # NAE
     parser.add_argument("--sampling_x", type=str, default="langevin", help="Sampling method for x")
@@ -88,6 +88,7 @@ def ini_argparse():
     parser.add_argument("-b1", "--beta1", type=float, default=0.9, help="AdamW first beta value")
     parser.add_argument("-b2", "--beta2", type=float, default=0.999, help="AdamW second beta value")
     parser.add_argument("--pretrained_ae", type=str, default=None, help="path of pretrained AE model")
+    parser.add_argument("--pretrained_net_x", type=str, default=None, help="path of pretrained net_x model")
     parser.add_argument("--save_dir", type=str, default="/raid/monsals/nae_physics", help="Log save directory")
     parser.add_argument("--name", type=str, default="v1", help="model name")
     parser.add_argument("--log_every_n_steps", type=int, default=50, help="steps between logs")

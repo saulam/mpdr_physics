@@ -222,6 +222,11 @@ class AE(nn.Module):
         #    img_recon = make_grid(recon.detach().cpu(), nrow=10, value_range=(0, 1))
         #    d_result["ae_img_input@"] = img_x
         #    d_result["ae_img_recon@"] = img_recon
+        recon_img = make_grid(recon.detach().cpu(), nrow=10, range=(0, 1))
+        input_img = make_grid(x.detach().cpu(), nrow=10, range=(0, 1))
+        d_result["recon@"] = recon_img
+        d_result["input@"] = input_img
+
         return d_result
 
     def weight_norm(self):

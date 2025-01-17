@@ -63,9 +63,11 @@ nae_args = retrieve_args(MPDR_Single, args)
 
 encoder = Encoder(**enc_args)
 decoder = Decoder(**enc_args)
+ae = AE(encoder, decoder, learn_out_scale=False, **ae_args)
 
-ae = AE(encoder, decoder, **ae_args)
-varnet_x = Encoder(mlp_head=True, **enc_args)
+encoder = Encoder(**enc_args)
+decoder = Decoder(**enc_args)
+varnet_x = AE(encoder, decoder, **ae_args)
 
 nae = MPDR_Single(
     ae=ae, net_x=varnet_x, **nae_args,
@@ -97,23 +99,22 @@ if args.pretrained_ae:
     nae.ae.load_state_dict(state_dict['model_state'])
     print("Loaded pretrained AE model!")
 
-if args.init_net_x_ae:
+if args.pretrained_net_x:
     state_dict = torch.load(args.init_net_x_ae, map_location=torch.device('cpu'))['state_dict']
 
     # Modify the keys in the state dictionary
     updated_state_dict = {}
     for key, value in state_dict.items():
-        if key.startswith("model.ae.encoder."):
-            #new_key = key.replace("model.ae.", "net_x.", 1)
-            new_key = key.replace("model.ae.encoder.", "", 1)
+        if key.startswith("model.net_x."):
+            new_key = key.replace("model.net_x.", "", 1)
             updated_state_dict[new_key] = value
 
     # Update the state dictionary with modified keys
     state_dict['model_state'] = updated_state_dict
 
     # Load the updated state dictionary into the model
-    nae.net_x.load_state_dict(state_dict['model_state'], strict=False)
-    print("Loaded pretrained AE model into net_x!")
+    nae.net_x.load_state_dict(state_dict['model_state'])
+    print("Loaded pretrained net_x model!")
 
 # Calculate arguments for scheduler
 args.warmup_steps = int(len(indist_train_loader) * args.warmup_steps // args.accum_grad_batches)

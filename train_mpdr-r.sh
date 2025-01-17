@@ -21,29 +21,30 @@ num_layers=6
 num_head=8
 eps=1e-12
 batch_size=128
-nae_epochs=100
+nae_epochs=50
 num_workers=32
 lr=1e-4
 dropout=0.1
 accum_grad_batches=1
-warmup_steps=0
-scheduler_steps=100
+warmup_steps=1
+scheduler_steps=49
 weight_decay=0
 beta1=0.9
 beta2=0.999
 save_dir="/raid/monsals/mpdr_physics"
-name="nae-v1"
+name="mpdr-r-v1"
 log_every_n_steps=10
 save_top_k=1
 pretrained_ae="/raid/monsals/mpdr_physics/checkpoints/ae-v1/last.ckpt"
 pretrained_net_x="/raid/monsals/mpdr_physics/checkpoints/netx-v1/last.ckpt"
 checkpoint_path="/raid/monsals/mpdr_physics/checkpoints"
-checkpoint_name="nae-l2-aug-spetemp1"
+checkpoint_name="mpdr-r-v1"
 gpus=(0 1 2 3)
 
-python -m train.mpdr-s \
+python -m train.mpdr-r \
     --latent_token \
     --pos_embedding \
+    --learn_out_scale \
     --window_size $window_size \
     --z_dim $z_dim \
     --temperature $temperature \

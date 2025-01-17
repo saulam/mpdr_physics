@@ -86,8 +86,8 @@ if args.pretrained_ae:
     # Modify the keys in the state dictionary
     updated_state_dict = {}
     for key, value in state_dict.items():
-        if key.startswith("model.ae"):
-            new_key = key.replace("model.ae", "", 1)
+        if key.startswith("model.ae."):
+            new_key = key.replace("model.ae.", "", 1)
             updated_state_dict[new_key] = value
 
     # Update the state dictionary with modified keys
@@ -116,8 +116,8 @@ if args.init_net_x_ae:
     print("Loaded pretrained AE model into net_x!")
 
 # Calculate arguments for scheduler
-args.warmup_steps = int(len(indist_train_loader) * args.warmup_steps // args.accum_grad_batches)
-args.scheduler_steps = int(len(indist_train_loader) * args.scheduler_steps // args.accum_grad_batches)
+args.warmup_steps = int(len(indist_train_loader) * args.warmup_steps // (args.accum_grad_batches * nb_gpus))
+args.scheduler_steps = int(len(indist_train_loader) * args.scheduler_steps // (args.accum_grad_batches * nb_gpus))
 
 lightning_signature_args = retrieve_args(NAELightningModel, args)
 

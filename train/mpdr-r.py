@@ -63,7 +63,10 @@ nae_args = retrieve_args(MPDR_Single, args)
 
 encoder = Encoder(**enc_args)
 decoder = Decoder(**enc_args)
-ae = AE(encoder, decoder, learn_out_scale=False, **ae_args)
+ae_args2 = ae_args.copy()
+if 'learn_out_scale' in ae_args2:
+    ae_args2['learn_out_scale'] = None
+ae = AE(encoder, decoder, **ae_args2)
 
 encoder = Encoder(**enc_args)
 decoder = Decoder(**enc_args)
@@ -88,8 +91,8 @@ if args.pretrained_ae:
     # Modify the keys in the state dictionary
     updated_state_dict = {}
     for key, value in state_dict.items():
-        if key.startswith("model.ae"):
-            new_key = key.replace("model.ae", "", 1)
+        if key.startswith("model.ae."):
+            new_key = key.replace("model.ae.", "", 1)
             updated_state_dict[new_key] = value
 
     # Update the state dictionary with modified keys
@@ -100,13 +103,13 @@ if args.pretrained_ae:
     print("Loaded pretrained AE model!")
 
 if args.pretrained_net_x:
-    state_dict = torch.load(args.init_net_x_ae, map_location=torch.device('cpu'))['state_dict']
+    state_dict = torch.load(args.pretrained_net_x, map_location=torch.device('cpu'))['state_dict']
 
     # Modify the keys in the state dictionary
     updated_state_dict = {}
     for key, value in state_dict.items():
-        if key.startswith("model.net_x."):
-            new_key = key.replace("model.net_x.", "", 1)
+        if key.startswith("model.ae."):
+            new_key = key.replace("model.ae.", "", 1)
             updated_state_dict[new_key] = value
 
     # Update the state dictionary with modified keys
@@ -117,8 +120,8 @@ if args.pretrained_net_x:
     print("Loaded pretrained net_x model!")
 
 # Calculate arguments for scheduler
-args.warmup_steps = int(len(indist_train_loader) * args.warmup_steps // args.accum_grad_batches)
-args.scheduler_steps = int(len(indist_train_loader) * args.scheduler_steps // args.accum_grad_batches)
+args.warmup_steps = int(len(indist_train_loader) * args.warmup_steps // (args.accum_grad_batches * nb_gpus))
+args.scheduler_steps = int(len(indist_train_loader) * args.scheduler_steps // (args.accum_grad_batches * nb_gpus))
 
 lightning_signature_args = retrieve_args(NAELightningModel, args)
 
@@ -157,7 +160,7 @@ trainer = pl.Trainer(
 trainer.fit(
     model=lightning_model,
     train_dataloaders=indist_train_loader,
-    val_dataloaders=[indist_val_loader, ood_val_loader],
+    #val_dataloaders=[indist_val_loader, ood_val_loader],
     ckpt_path="/".join([args.checkpoint_path, args.checkpoint_name, args.load_checkpoint]) if args.load_checkpoint else None,
 )
 

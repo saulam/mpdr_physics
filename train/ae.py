@@ -77,8 +77,8 @@ total_params = sum(p.numel() for p in nae.parameters())
 print(f"Total number of parameters: {total_params}")
 
 # Calculate arguments for scheduler
-args.warmup_steps = int(len(indist_train_loader) * args.warmup_steps // args.accum_grad_batches)
-args.scheduler_steps = int(len(indist_train_loader) * args.scheduler_steps // args.accum_grad_batches)
+args.warmup_steps = int(len(indist_train_loader) * args.warmup_steps // (args.accum_grad_batches * nb_gpus))
+args.scheduler_steps = int(len(indist_train_loader) * args.scheduler_steps // (args.accum_grad_batches * nb_gpus))
 
 lightning_signature_args = retrieve_args(AELightningModel, args)
 

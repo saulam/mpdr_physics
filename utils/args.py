@@ -72,7 +72,8 @@ def ini_argparse():
     parser.add_argument("--work_on_manifold", action="store_true", default=False, help="Work on the manifold")
     parser.add_argument("--conditional", action="store_true", default=False, help="Use conditional generation")
     parser.add_argument("--custom_netx_reg", action="store_true", default=False, help="Custom regularization for net x")
- 
+    parser.add_argument("--init_net_x_ae", type=str, default=None, help="Path of pretrained AE for init net_x")
+
     # Train arguments
     parser.add_argument("-b", "--batch_size", type=int, default=64, help="batch_size")
     parser.add_argument("--ae_epochs", type=int, default=100, help="number of AE epochs")

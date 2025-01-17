@@ -1,27 +1,27 @@
 #!/bin/bash
 
 window_size=10
-z_dim=256
+z_dim=64
 num_layers=6
 num_head=8
 eps=1e-12
 batch_size=256
-ae_epochs=200
+ae_epochs=50
 num_workers=32
 lr=1e-4
 dropout=0.1
 accum_grad_batches=1
 warmup_steps=0
-scheduler_steps=200
+scheduler_steps=0
 weight_decay=0
 beta1=0.9
 beta2=0.999
 save_dir="/raid/monsals/mpdr_physics"
-name="ae-v1"
+name="ae-v2"
 log_every_n_steps=100
 save_top_k=1
 checkpoint_path="/raid/monsals/mpdr_physics/checkpoints"
-checkpoint_name="ae-v1"
+checkpoint_name="ae-v2"
 gpus=(0 1 2 3)
 
 python -m train.ae \

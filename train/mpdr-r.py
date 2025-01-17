@@ -160,7 +160,7 @@ trainer = pl.Trainer(
 trainer.fit(
     model=lightning_model,
     train_dataloaders=indist_train_loader,
-    #val_dataloaders=[indist_val_loader, ood_val_loader],
+    val_dataloaders=[indist_val_loader, ood_val_loader],
     ckpt_path="/".join([args.checkpoint_path, args.checkpoint_name, args.load_checkpoint]) if args.load_checkpoint else None,
 )
 

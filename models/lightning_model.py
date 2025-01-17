@@ -118,23 +118,26 @@ class AELightningModel(pl.LightningModule):
             weight_decay=self.weight_decay
         )
 
-        # Warm-up scheduler
-        warmup_scheduler = CustomLambdaLR(optimizer, self.warmup_steps)
+        if self.warmup_steps==0 and self.cosine_annealing_steps==0:
+            return optimizer
+        else:
+            # Warm-up scheduler
+            warmup_scheduler = CustomLambdaLR(optimizer, self.warmup_steps)
 
-        # Cosine annealing scheduler
-        cosine_scheduler = CosineAnnealingWarmRestarts(
-            optimizer=optimizer,
-            T_0=self.cosine_annealing_steps,
-            eta_min=0
-        )
+            # Cosine annealing scheduler
+            cosine_scheduler = CosineAnnealingWarmRestarts(
+                optimizer=optimizer,
+                T_0=self.cosine_annealing_steps,
+                eta_min=0
+            )
 
-        # Combine both schedulers
-        combined_scheduler = CombinedScheduler(
-            optimizer=optimizer,
-            scheduler1=warmup_scheduler,
-            scheduler2=cosine_scheduler,
-            warmup_steps=self.warmup_steps,
-        )
+            # Combine both schedulers
+            combined_scheduler = CombinedScheduler(
+                optimizer=optimizer,
+                scheduler1=warmup_scheduler,
+                scheduler2=cosine_scheduler,
+                warmup_steps=self.warmup_steps,
+            )
 
         return {'optimizer': optimizer, 'lr_scheduler': {'scheduler': combined_scheduler, 'interval': 'step'}}
 
@@ -240,23 +243,26 @@ class NAELightningModel(pl.LightningModule):
             weight_decay=self.weight_decay
         )
 
-        # Warm-up scheduler
-        warmup_scheduler = CustomLambdaLR(optimizer, self.warmup_steps)
+        if self.warmup_steps==0 and self.cosine_annealing_steps==0:
+            return optimizer
+        else:
+            # Warm-up scheduler
+            warmup_scheduler = CustomLambdaLR(optimizer, self.warmup_steps)
 
-        # Cosine annealing scheduler
-        cosine_scheduler = CosineAnnealingWarmRestarts(
-            optimizer=optimizer,
-            T_0=self.cosine_annealing_steps,
-            eta_min=0
-        )
+            # Cosine annealing scheduler
+            cosine_scheduler = CosineAnnealingWarmRestarts(
+                optimizer=optimizer,
+                T_0=self.cosine_annealing_steps,
+                eta_min=0
+            )
 
-        # Combine both schedulers
-        combined_scheduler = CombinedScheduler(
-            optimizer=optimizer,
-            scheduler1=warmup_scheduler,
-            scheduler2=cosine_scheduler,
-            warmup_steps=self.warmup_steps,
-        )
+            # Combine both schedulers
+            combined_scheduler = CombinedScheduler(
+                optimizer=optimizer,
+                scheduler1=warmup_scheduler,
+                scheduler2=cosine_scheduler,
+                warmup_steps=self.warmup_steps,
+            )
 
         return {'optimizer': optimizer, 'lr_scheduler': {'scheduler': combined_scheduler, 'interval': 'step'}}
 

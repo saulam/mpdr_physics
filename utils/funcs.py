@@ -69,9 +69,10 @@ class CombinedScheduler(_LRScheduler):
         if self.step_num < self.warmup_steps:
             self.scheduler1.step()
         else:
-            self.scheduler2.step()
-            if self.lr_decay < 1.0 and (self.scheduler2.T_cur+1 == self.scheduler2.T_i):
-                # Reduce the learning rate after every restart
-                self.scheduler2.base_lrs[0] *= self.lr_decay
+            if self.scheduler2 is not None:
+                self.scheduler2.step()
+                if self.lr_decay < 1.0 and (self.scheduler2.T_cur+1 == self.scheduler2.T_i):
+                    # Reduce the learning rate after every restart
+                    self.scheduler2.base_lrs[0] *= self.lr_decay
         self.step_num += 1
 

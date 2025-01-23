@@ -383,12 +383,19 @@ class MPDR_Single(nn.Module):
         else:
             energy = vx
 
+        ''' modified
         if self.use_recon_error:
             recon_error = self.ae.recon_error(x, noise=False)
             # energy = energy + F.relu((self.a**2) * (recon_error - self.b))
             energy = energy + (self.a**2) * (recon_error - self.b)
             d_out["recon_error"] = recon_error
-
+        '''
+        recon_error = self.ae.recon_error(x, noise=False)
+        if self.use_recon_error:
+            # energy = energy + F.relu((self.a**2) * (recon_error - self.b))
+            energy = energy + (self.a**2) * (recon_error - self.b)
+        d_out["recon_error"] = recon_error
+       
         if hasattr(self.net_x, 'state'):
             # save energy-function specific state for regularization
             d_out = {**d_out, **self.net_x.state}
@@ -527,8 +534,10 @@ class MPDR_Single(nn.Module):
             loss += reg_gamma_vx * self.gamma_vx
 
         if self.gamma_neg_recon is not None:
-            loss += self.gamma_neg_recon * (d_off_neg["recon"] ** 2).mean()
-                
+            # d_off_neg just has vx and energy as keys (added recon_error)
+            #loss += self.gamma_neg_recon * (d_off_neg["recon"] ** 2).mean()
+            loss += self.gamma_neg_recon * (d_off_neg["recon_error"] ** 2).mean()
+
         if self.gamma_neg_b is not None:
             loss += self.gamma_neg_b * (d_off_neg["b"] ** 2).mean()
 

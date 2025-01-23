@@ -41,8 +41,8 @@ import torch
 torch.multiprocessing.set_sharing_strategy('file_system')
 
 # Datasets
-bbh_dataset = GWDataset(args.bbh_dataset)
-bkg_dataset = GWDataset(args.bkg_dataset)
+bbh_dataset = GWDataset(args.bbh_dataset, args.augment)
+bkg_dataset = GWDataset(args.bkg_dataset, args.augment)
 indist_dataset = ConcatDataset([bbh_dataset, bkg_dataset])
 
 # split datasets

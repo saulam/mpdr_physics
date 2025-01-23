@@ -121,15 +121,21 @@ class AELightningModel(pl.LightningModule):
         if self.warmup_steps==0 and self.cosine_annealing_steps==0:
             return optimizer
         else:
-            # Warm-up scheduler
-            warmup_scheduler = CustomLambdaLR(optimizer, self.warmup_steps)
-
-            # Cosine annealing scheduler
-            cosine_scheduler = CosineAnnealingWarmRestarts(
-                optimizer=optimizer,
-                T_0=self.cosine_annealing_steps,
-                eta_min=0
-            )
+            if self.warmup_steps == 0:
+                warmup_scheduler = None
+            else:
+                # Warm-up scheduler
+                warmup_scheduler = CustomLambdaLR(optimizer, self.warmup_steps)
+            
+            if self.cosine_annealing_steps == 0:
+                cosine_scheduler = None
+            else:
+                # Cosine annealing scheduler
+                cosine_scheduler = CosineAnnealingWarmRestarts(
+                    optimizer=optimizer,
+                    T_0=self.cosine_annealing_steps,
+                    eta_min=0
+                )
 
             # Combine both schedulers
             combined_scheduler = CombinedScheduler(
@@ -246,15 +252,21 @@ class NAELightningModel(pl.LightningModule):
         if self.warmup_steps==0 and self.cosine_annealing_steps==0:
             return optimizer
         else:
-            # Warm-up scheduler
-            warmup_scheduler = CustomLambdaLR(optimizer, self.warmup_steps)
+            if self.warmup_steps == 0:
+                warmup_scheduler = None
+            else:
+                # Warm-up scheduler
+                warmup_scheduler = CustomLambdaLR(optimizer, self.warmup_steps)
 
-            # Cosine annealing scheduler
-            cosine_scheduler = CosineAnnealingWarmRestarts(
-                optimizer=optimizer,
-                T_0=self.cosine_annealing_steps,
-                eta_min=0
-            )
+            if self.cosine_annealing_steps == 0:
+                cosine_scheduler = None
+            else:
+                # Cosine annealing scheduler
+                cosine_scheduler = CosineAnnealingWarmRestarts(
+                    optimizer=optimizer,
+                    T_0=self.cosine_annealing_steps,
+                    eta_min=0
+                )
 
             # Combine both schedulers
             combined_scheduler = CombinedScheduler(

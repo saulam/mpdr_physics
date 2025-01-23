@@ -10,6 +10,7 @@ def ini_argparse():
     parser.add_argument("--bbh_dataset", type=str, default="/raid/monsals/gw/bbh_for_challenge.npy", help="BBH dataset path")
     parser.add_argument("--bkg_dataset", type=str, default="/raid/monsals/gw/background.npz", help="Background dataset path")
     parser.add_argument("--sglf_dataset", type=str, default="/raid/monsals/gw/sglf_for_challenge.npy", help="SGLF Dataset path")
+    parser.add_argument("--augment", action="store_true", default=None, help="Whether use augmentations")
 
     # AE arguments
     parser.add_argument("--in_features", type=int, default=2, help="input features")

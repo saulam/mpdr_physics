@@ -5,18 +5,22 @@ from dataset.augmentations import *
 
 
 class GWDataset(Dataset):
-    def __init__(self, file_path):
+    def __init__(self, file_path, augment=False):
         """
         Args:
             file_path (str): Path to the NumPy file containing the dataset (shape: (N, 2, 200)).
         """
         loaded_data = np.load(file_path)
         self.training = False
+        self.augmentations = augment
 
         if isinstance(loaded_data, np.lib.npyio.NpzFile) and 'data' in loaded_data:
             self.data = loaded_data['data']
         else:
             self.data = loaded_data
+
+        stds = np.std(self.data, axis=-1)[:, :, np.newaxis]
+        self.data = self.data/stds
 
     def __len__(self):
         """
@@ -49,7 +53,7 @@ class GWDataset(Dataset):
             torch.Tensor: The transformed example.
         """
         example = self.data[idx]
-        if self.training:
+        if self.training and self.augmentations:
             if np.random.rand() > 0.01:
                 example = self.augment(example)
         #example = np.interp(example, (-5, 5), (0, 1)).reshape(example.shape)

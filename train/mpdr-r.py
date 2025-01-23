@@ -41,8 +41,8 @@ import torch
 torch.multiprocessing.set_sharing_strategy('file_system')
 
 # Datasets
-bbh_dataset = GWDataset(args.bbh_dataset)
-bkg_dataset = GWDataset(args.bkg_dataset)
+bbh_dataset = GWDataset(args.bbh_dataset, args.augment)
+bkg_dataset = GWDataset(args.bkg_dataset, args.augment)
 sglf_dataset = GWDataset(args.sglf_dataset)
 
 indist_dataset = ConcatDataset([bbh_dataset, bkg_dataset])
@@ -65,6 +65,7 @@ encoder = Encoder(**enc_args)
 decoder = Decoder(**enc_args)
 ae_args2 = ae_args.copy()
 if 'learn_out_scale' in ae_args2:
+    ae_args2['encoding_noise'] = 0.01
     ae_args2['learn_out_scale'] = None
 ae = AE(encoder, decoder, **ae_args2)
 
@@ -151,7 +152,7 @@ trainer = pl.Trainer(
     precision="32",
     logger=[logger, tb_logger],
     log_every_n_steps=args.log_every_n_steps,
-    val_check_interval=100,
+    val_check_interval=50,
     deterministic=False,
     accumulate_grad_batches=args.accum_grad_batches,
 )

@@ -46,16 +46,11 @@ class GWDataset(Dataset):
         """
         Clamps outliers and normalizes a single waveform to the range [-1, 1].
         """
-        # Step 1: Clamp outliers based on percentiles
         lower_bound = np.percentile(waveform, lower_percentile, axis=0, keepdims=True)
         upper_bound = np.percentile(waveform, upper_percentile, axis=0, keepdims=True)
-
         waveform_clamped = np.clip(waveform, lower_bound, upper_bound)
-
-        # Step 2: Normalize to the range [-1, 1]
         min_vals = np.min(waveform_clamped, axis=0, keepdims=True)
         max_vals = np.max(waveform_clamped, axis=0, keepdims=True)
-
         normalized_waveform = 2 * (waveform_clamped - min_vals) / (max_vals - min_vals + 1e-10) - 1
 
         return normalized_waveform
@@ -89,7 +84,7 @@ class GWDataset(Dataset):
         if self.training and self.augmentations:
             if np.random.rand() > 0.01:
                 example = self.augment(example)
-        example = self.clamp_and_normalize(example)
+        #example = self.clamp_and_normalize(example)
         example_tensor = torch.tensor(example, dtype=torch.float32)
         example_tensor_fft = self.fft(example_tensor)[:100] / 1000.
         example_tensor_fft = example_tensor_fft.reshape(1, -1)

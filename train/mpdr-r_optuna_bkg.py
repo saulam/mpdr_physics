@@ -63,8 +63,9 @@ bbh_dataset = GWDataset(args.bbh_dataset, args.augment)
 bkg_dataset = GWDataset(args.bkg_dataset, args.augment)
 sglf_dataset = GWDataset(args.sglf_dataset)
 
-indist_dataset = ConcatDataset([bbh_dataset, bkg_dataset])
-ood_dataset = sglf_dataset
+indist_dataset = bkg_dataset
+ood1_dataset = bbh_dataset
+ood2_dataset = sglf_dataset
 
 # split datasets
 indist_train_set, indist_val_set = split_dataset(indist_dataset, train_ratio=0.8)
@@ -73,20 +74,21 @@ indist_train_set, indist_val_set = split_dataset(indist_dataset, train_ratio=0.8
 loader_args = retrieve_args(create_data_loader, args)
 indist_train_loader = create_data_loader(indist_train_set, shuffle=True, **loader_args)
 indist_val_loader = create_data_loader(indist_val_set, shuffle=False, **loader_args)
-ood_val_loader = create_data_loader(ood_dataset, shuffle=False, **loader_args)
+ood1_val_loader = create_data_loader(ood1_dataset, shuffle=False, **loader_args)
+ood2_val_loader = create_data_loader(ood2_dataset, shuffle=False, **loader_args)
 
 # Calculate arguments for scheduler
 args.warmup_steps = int(len(indist_train_loader) * args.warmup_steps // (args.accum_grad_batches * nb_gpus))
 args.scheduler_steps = int(len(indist_train_loader) * args.scheduler_steps // (args.accum_grad_batches * nb_gpus))
 
 def objective(trial):
-    lr = trial.suggest_float('lr', 1e-6, 1e-3)
+    lr = trial.suggest_loguniform('lr', 1e-5, 1e-3)
     mcmc_n_step_x = trial.suggest_int("mcmc_n_step_x", 1, 20)
     mcmc_stepsize_x = trial.suggest_int("mcmc_stepsize_x", 1, 20)
-    mcmc_noise_x = trial.suggest_float("mcmc_noise_x", 0.001, 1)
+    mcmc_noise_x = trial.suggest_float("mcmc_noise_x", 0.001, 0.1)
     mcmc_n_step_omi = trial.suggest_int("mcmc_n_step_omi", 0, 10)
     mcmc_stepsize_omi = trial.suggest_float("mcmc_stepsize_omi", 0.02, 1)
-    mcmc_noise_omi = trial.suggest_float("mcmc_noise_omi", 0.0, 1)
+    mcmc_noise_omi = trial.suggest_float("mcmc_noise_omi", 0.0, 0.1)
 
     args.lr = lr
     args.mcmc_n_step_x = mcmc_n_step_x
@@ -169,7 +171,7 @@ def objective(trial):
     # Create trainer module
     trainer = pl.Trainer(
         num_sanity_val_steps=0,
-        max_epochs=1,
+        max_epochs=6,
         callbacks=[nan_callback],
         accelerator="gpu",
         devices=nb_gpus,
@@ -183,13 +185,13 @@ def objective(trial):
     trainer.fit(
         model=lightning_model,
         train_dataloaders=indist_train_loader,
-        val_dataloaders=[indist_val_loader, ood_val_loader],
+        val_dataloaders=[indist_val_loader, ood1_val_loader, ood2_val_loader],
     )
 
-    return trainer.callback_metrics["nae/auc_val"].item()
+    return trainer.callback_metrics["nae/auc_val_avg"].item()
 
 # Create an Optuna study and optimize it
-study = optuna.load_study(study_name='distributed-example-mpdr-r-fft5', storage='sqlite:///example.db')
+study = optuna.load_study(study_name='distributed-example-mpdr-r-fft', storage='sqlite:///example.db')
 study.optimize(objective, n_trials=20)
 
 # Display best trial

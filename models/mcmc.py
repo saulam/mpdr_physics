@@ -262,6 +262,9 @@ def sample_langevin_v2(x, model, stepsize, n_step, noise_scale=None,
 
         if bound == 'spherical':
             y = y / y.norm(dim=1, p=2, keepdim=True)
+        elif bound == 'std':
+            stds = torch.std(y, dim=-1, keepdim=True)
+            y = y / stds
         elif bound is not None:
             if reject_boundary:
                 accept = ((y >= bound[0]) & (y <= bound[1])).view(len(x), -1).all(dim=1)

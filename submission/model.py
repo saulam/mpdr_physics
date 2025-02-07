@@ -4,7 +4,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 import math
 import numpy as np
-from scipy.stats import norm
 
 
 class PositionalEncoding(nn.Module):
@@ -179,10 +178,10 @@ class Model(nn.Module):
         super().__init__()
 
     def load(self):
-        args = {'in_features': 2,
-            'seq_len': 200,
+        args = {'in_features': 1,
+            'seq_len': 100,
             'window_size': 10,
-            'z_dim': 256,
+            'z_dim': 128,
             'num_layers': 6,
             'num_head': 8,
             'dropout': 0.1,
@@ -197,7 +196,6 @@ class Model(nn.Module):
         self.learn_out_scale = True
         if self.learn_out_scale is not None:
             self.register_parameter("out_scale", nn.Parameter(torch.tensor(1.0)))
-        self.mu, self.sigma = 0.96737844, 0.68268394
         weight_path = os.path.join(os.path.dirname(__file__), 'model_weights.pt')
         self.load_state_dict(torch.load(weight_path, map_location=torch.device('cpu')))
         self.eval()
@@ -250,6 +248,18 @@ class Model(nn.Module):
         else:
             return recon
 
+    def fft(self, data):
+        """
+        Computes the cross-power spectrum magnitude between the Hanford and Livingston LIGO detectors.
+        """
+        fft_hanford = torch.fft.rfft(data[:, 0, :], dim=1)     # Hanford channel
+        fft_livingston = torch.fft.rfft(data[:, 1, :], dim=1)  # Livingston channel
+
+        cross_spectrum = fft_hanford * torch.conj(fft_livingston)
+        cross_magnitude = torch.abs(cross_spectrum)
+    
+        return cross_magnitude[:, :100].reshape(-1, 1, 100)
+ 
     def predict(self, x):
         if isinstance(x, np.ndarray):
             x = torch.tensor(x, dtype=torch.float32)
@@ -257,8 +267,10 @@ class Model(nn.Module):
         # Transpose only if the last two dimensions are (200, 2)
         if x.shape[-2:] == (200, 2):
             x = x.transpose(-1, -2)
+
+        x = self.fft(x) / 1000.
         
         preds = self(x).detach().cpu().numpy()
-        probs = norm.cdf(preds, loc=self.mu, scale=self.sigma)
-        return probs
+        
+        return preds
 

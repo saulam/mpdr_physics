@@ -2,6 +2,12 @@ __pycache__/
 .ipynb_checkpoints/
 notebooks/
 lightning_logs
+submission*
 *log*
+*images
 checkpoint*
 *json
+example*
+*BAK
+*db
+*pt

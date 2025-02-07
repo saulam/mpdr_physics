@@ -721,6 +721,33 @@ class MPDR_Single(nn.Module):
         netx_norm = weight_norm(self.net_x)
         return netx_norm
 
+    def sample(self, x, y=None):
+        """off-manifold training for learning energy function"""
+        # from pudb import set_trace; set_trace()
+        self.eval()
+        if self.sampling_x == "langevin":
+            with torch.no_grad():
+                proj_noise = self.get_proj_noise(x)
+                x_init_pre, z_obs = self.ae.project_diffuse(x, proj_noise)
+
+            d_omi = self.on_manifold_init_v2(x_init_pre, z_obs, proj_noise, y=y)
+            x_init = d_omi["x_init"]
+
+            d_sample = self.p_sample_langevin_off_v2(
+                ae=self.ae, x_init=x_init, z_obs=z_obs, proj_noise=proj_noise, y=y
+            )
+            x_neg = d_sample["sample"]
+        elif self.sampling_x is None:
+            x_neg = None
+            x_init = None
+        else:
+            raise NotImplementedError
+        d_off = {"x_neg": x_neg, "x_init": x_init, "d_sample": d_sample}
+
+        d_train = {**d_off, **d_omi}
+
+        return d_train
+
     def sample_step(self, x, **kwargs):
         # generate sample from the current model
         d_result = {"loss": 0.0}

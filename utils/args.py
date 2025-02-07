@@ -13,8 +13,8 @@ def ini_argparse():
     parser.add_argument("--augment", action="store_true", default=None, help="Whether use augmentations")
 
     # AE arguments
-    parser.add_argument("--in_features", type=int, default=2, help="input features")
-    parser.add_argument("--seq_len", type=int, default=200, help="sequence length")
+    parser.add_argument("--in_features", type=int, default=1, help="input features")
+    parser.add_argument("--seq_len", type=int, default=100, help="sequence length")
     parser.add_argument("--window_size", type=int, default=1, help="subsequence window size")
     parser.add_argument("--z_dim", type=int, default=32, help="latent space dimension")
     parser.add_argument("--num_layers", type=int, default=5, help="number of layers in AE encoder/decoder")

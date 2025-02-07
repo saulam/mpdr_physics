@@ -4,27 +4,28 @@ window_size=10
 z_dim=256
 temperature=1
 temperature_omi=1
-gamma_vx=1
+gamma_vx=1  # hidden
+gamma_neg_recon=1  # hidden
 sampling_x=langevin
 mcmc_n_step_x=5
 mcmc_stepsize_x=10
 mcmc_noise_x=0.005
-mcmc_n_step_omi=5
-mcmc_stepsize_omi=0.1
-mcmc_noise_omi=0.01
+mcmc_n_step_omi=2
+mcmc_stepsize_omi=0.05
+mcmc_noise_omi=0.02
 proj_mode=uniform
 proj_noise_start=0.05
 proj_noise_end=0.3
 proj_const_omi=0.0001
-proj_const=0.0
-proj_dist=sum  # sometimes hidden
+proj_const=0.0001
+proj_dist=geodesic  # sometimes hidden
 num_layers=6
 num_head=8
 eps=1e-12
-batch_size=128
+batch_size=256
 nae_epochs=50
 num_workers=32
-lr=1e-4
+lr=1e-5
 dropout=0.1
 accum_grad_batches=1
 warmup_steps=0
@@ -33,13 +34,13 @@ weight_decay=0
 beta1=0.9
 beta2=0.999
 save_dir="/raid/monsals/mpdr_physics"
-name="mpdr-s-v3"
+name="mpdr-s-v5"
 log_every_n_steps=10
 save_top_k=1
 pretrained_ae="/raid/monsals/mpdr_physics/checkpoints/ae-v1/last.ckpt"
 init_net_x_ae="/raid/monsals/mpdr_physics/checkpoints/ae-v1/last.ckpt"
 checkpoint_path="/raid/monsals/mpdr_physics/checkpoints"
-checkpoint_name="mpdr-s-v3"
+checkpoint_name="mpdr-s-v5"
 gpus=(4 5 6 7)
 
 python -m train.mpdr-s \
@@ -49,7 +50,6 @@ python -m train.mpdr-s \
     --z_dim $z_dim \
     --temperature $temperature \
     --temperature_omi $temperature_omi \
-    --gamma_vx $gamma_vx \
     --sampling_x $sampling_x \
     --mcmc_n_step_x $mcmc_n_step_x \
     --mcmc_stepsize_x $mcmc_stepsize_x \
@@ -65,7 +65,6 @@ python -m train.mpdr-s \
     --proj_const_omi $proj_const_omi \
     --proj_const $proj_const \
     --proj_dist $proj_dist \
-    --use_recon_error \
     --num_layers $num_layers \
     --num_head $num_head \
     --eps $eps \
